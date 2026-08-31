@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trips, dinners, rent aur group expenses ka hisaab bina confusion ke." />
+  <meta name="theme-color" content="#17211C" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kiska Kitna?" />
+  <title>Kiska Kitna? — Bill Splitter</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════ HERO -->
+  <section class="hero" id="hero">
+    <div class="hero__inner">
+      <div class="hero__badge">🇮🇳 Made for India</div>
+      <h1 class="hero__title">Kiska Kitna?</h1>
+      <p class="hero__tagline">Split karo. Settle karo. Khatam karo.</p>
+      <p class="hero__desc">
+        Trips, dinners, rent aur group expenses ka hisaab<br />
+        bina confusion ke. 💸
+      </p>
+      <button class="btn btn--primary btn--large" id="startBtn">
+        Start a split <span aria-hidden="true">&#8594;</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ APP -->
+  <main class="app" id="app">
+    <div class="container">
+
+      <section class="group-home" id="groupDashboard" hidden aria-labelledby="groupDashboardTitle">
+        <div class="group-home__header">
+          <div>
+            <p class="group-home__eyebrow">Your groups</p>
+            <h2 id="groupDashboardTitle">Pick up where you left off</h2>
+          </div>
+          <div class="group-home__actions">
+            <button class="btn btn--outline" id="dashboardImportBtn" type="button">&#8679; Import</button>
+            <button class="btn btn--outline" id="dashboardExportAllBtn" type="button">&#8681; Export All</button>
+            <button class="btn btn--primary" id="newGroupBtn" type="button">+ New Group</button>
+          </div>
+        </div>
+        <div class="local-storage-note group-home__storage">
+          <span aria-hidden="true">&#128274;</span>
+          <span><strong>Saved in this browser</strong><small>Clearing site data may permanently delete groups. Export JSON to restore them.</small></span>
+        </div>
+        <p class="backup-panel__status group-home__backup-status" id="groupBackupStatus" aria-live="polite"></p>
+        <h3 class="group-section-title">Current Groups</h3>
+        <ul class="group-list" id="groupList"></ul>
+        <div class="group-home__empty" id="groupListEmpty" hidden>
+          <span aria-hidden="true">&#128203;</span>
+          <h3>No current groups</h3>
+          <p>Create a group or restore one from Archived Groups.</p>
+          <button class="btn btn--primary" id="emptyNewGroupBtn" type="button">Create your first group</button>
+        </div>
+        <details class="archived-groups" id="archivedGroupsSection" hidden>
+          <summary>
+            <span>&#128230; Archived Groups (<span id="archivedGroupCount">0</span>)</span>
+            <span aria-hidden="true">&#9662;</span>
+          </summary>
+          <ul class="group-list archived-group-list" id="archivedGroupList"></ul>
+        </details>
+      </section>
+
+      <div class="group-workspace" id="groupWorkspace" hidden>
+        <nav class="active-group-bar" aria-label="Group navigation">
+          <button class="btn btn--ghost active-group-bar__back" id="allGroupsBtn" type="button">&#8592; All Groups</button>
+          <div class="active-group-bar__identity">
+            <small id="activeGroupStatus">Active group</small>
+            <strong id="activeGroupName"></strong>
+          </div>
+          <div class="active-group-bar__actions">
+            <button class="btn btn--ghost lifecycle-action" id="completeGroupBtn" type="button">Mark as Completed</button>
+            <button class="btn btn--ghost lifecycle-action" id="archiveGroupBtn" type="button" hidden>Archive</button>
+            <button class="btn btn--ghost lifecycle-action" id="restoreGroupBtn" type="button" hidden>Restore to Active</button>
+            <button class="btn btn--ghost" id="renameGroupBtn" type="button">Rename</button>
+            <button class="btn btn--ghost" id="duplicateGroupBtn" type="button">Duplicate</button>
+            <button class="btn btn--ghost btn--danger" id="deleteGroupBtn" type="button">Delete</button>
+          </div>
+        </nav>
+        <div class="group-readonly-note" id="groupReadonlyNote" hidden>
+          <span aria-hidden="true">&#128274;</span>
+          <span><strong id="groupReadonlyTitle">Completed group</strong><small>Expenses and people are read-only. Restore to Active to make changes.</small></span>
+        </div>
+
+      <div class="session-tools">
+        <div class="local-storage-note">
+          <span aria-hidden="true">&#128274;</span>
+          <span><strong>Saved in this browser</strong><small>Clearing site data may permanently delete groups. Export JSON to restore them.</small></span>
+        </div>
+        <button class="btn btn--ghost reset-group-btn" id="resetGroupBtn" type="button">Clear Contents</button>
+      </div>
+
+      <details class="backup-panel" id="backupPanel">
+        <summary>
+          <span><strong>&#128230; Backup &amp; Restore</strong><small>Export or import a local copy</small></span>
+          <span class="backup-panel__chevron" aria-hidden="true">&#9662;</span>
+        </summary>
+        <div class="backup-panel__body">
+          <p>Data is stored only in this browser. Clearing its site data may permanently remove your groups; an exported JSON backup can restore them. Kiska Kitna does not upload backups.</p>
+          <div class="backup-panel__actions">
+            <button class="btn btn--outline" id="exportBackupBtn" type="button">&#8681; Export Current</button>
+            <button class="btn btn--outline" id="exportAllBackupBtn" type="button">&#8681; Export All</button>
+            <button class="btn btn--outline" id="importBackupBtn" type="button">&#8679; Import Backup</button>
+            <input id="importBackupFile" type="file" accept="application/json,.json" aria-label="Import backup file" hidden />
+          </div>
+          <p class="backup-panel__status" id="backupStatus" aria-live="polite"></p>
+        </div>
+      </details>
+
+      <!-- ── Group Name ───────────────────────────────────────── -->
+      <section class="card" id="groupCard">
+        <h2 class="card__title">✏️ Group Name</h2>
+        <input
+          class="input"
+          id="groupNameInput"
+          type="text"
+          placeholder='e.g. "Goa Trip 2025"'
+          maxlength="60"
+          autocomplete="off"
+          aria-label="Group name"
+        />
+      </section>
+
+      <!-- ── People ───────────────────────────────────────────── -->
+      <section class="card" id="peopleCard">
+        <h2 class="card__title">👥 Log kaun kaun hai?</h2>
+
+        <!-- Add person form -->
+        <div class="add-row">
+          <input
+            class="input"
+            id="personNameInput"
+            type="text"
+            placeholder="Name daalo..."
+            maxlength="40"
+            autocomplete="off"
+            aria-label="Person name"
+            aria-describedby="personError"
+          />
+          <button class="btn btn--primary" id="addPersonBtn" type="button">+ Add person</button>
+        </div>
+
+        <!-- Error message (hidden by default) -->
+        <p class="error-msg" id="personError" aria-live="polite"></p>
+
+        <!-- People list — populated by JS -->
+        <ul class="people-list" id="peopleList">
+          <!-- Empty state shown when list is empty -->
+          <li class="empty-state" id="peopleEmptyState">
+            Abhi koi nahi hai. Upar naam daalo! 👆
+          </li>
+        </ul>
+        <div class="past-members" id="pastMembersNote" hidden></div>
+      </section>
+
+      <!-- ── Expenses ─────────────────────────────────────────── -->
+      <section class="card" id="expensesCard">
+        <div class="card__header">
+          <h2 class="card__title">💰 Expenses</h2>
+          <button class="btn btn--primary" id="addExpenseBtn" type="button" disabled>
+            + Add Expense
+          </button>
+        </div>
+
+        <!-- Shown until people + expenses are added -->
+        <div class="empty-state" id="expensesEmptyState">
+          <span class="empty-state__icon">🧾</span>
+          <p>Pehle log add karo, phir expenses!</p>
+        </div>
+
+        <!-- Expense list — populated by JS in later steps -->
+        <ul class="expense-list" id="expenseList" hidden></ul>
+        <div class="expense-history-controls" id="expenseHistoryControls" hidden>
+          <p id="expenseHistoryStatus" role="status" aria-live="polite"></p>
+          <button class="btn btn--secondary" id="showOlderExpensesBtn" type="button">
+            Show older expenses
+          </button>
+        </div>
+      </section>
+
+      <!-- ── Settlement ───────────────────────────────────────── -->
+      <section class="card card--settlement" id="settlementCard">
+        <h2 class="card__title">🤝 Settlement</h2>
+        <div id="settlementBody">
+          <div class="empty-state">
+            <span class="empty-state__icon">⏳</span>
+            <p>Expenses add karo, phir hisaab dikhega.</p>
+          </div>
+        </div>
+      </section>
+
+      </div><!-- /group-workspace -->
+
+    </div><!-- /container -->
+  </main>
+
+  <footer class="footer">
+    <p>Kiska Kitna? &mdash; Bina jhanjhat ke hisaab. 🙏</p>
+    <div class="pwa-controls">
+      <span class="connection-status" id="connectionStatus" role="status" hidden>Offline &mdash; Your data is stored on this device.</span>
+      <button class="btn btn--ghost install-app-btn" id="installAppBtn" type="button" hidden>Install Kiska Kitna?</button>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════ EXPENSE MODAL -->
+  <!-- Bottom-sheet on mobile, centred dialog on desktop -->
+  <div class="modal-overlay" id="modalOverlay" hidden aria-hidden="true">
+    <div class="modal" id="expenseModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+      <div class="modal__header">
+        <h3 class="modal__title" id="modalTitle">Add Expense</h3>
+        <button class="btn btn--ghost modal__close" id="modalClose" aria-label="Close modal" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="modal__body">
+
+        <!-- 1. Expense name -->
+        <div class="form-group form-group--primary">
+          <label class="form-label" for="expName">1. What was it? *</label>
+          <input class="input" id="expName" type="text"
+            placeholder="Dinner, hotel, petrol..." maxlength="60" autocomplete="off"
+            aria-describedby="expenseNameError" />
+          <p class="field-error" id="expenseNameError" aria-live="polite"></p>
+        </div>
+
+        <!-- 2. Amount -->
+        <div class="form-group form-group--primary">
+          <label class="form-label" for="expAmount">2. How much? *</label>
+          <div class="input-prefix-wrap amount-input-wrap">
+            <span class="input-prefix">&#8377;</span>
+            <input class="input input--prefixed" id="expAmount" type="number"
+              min="0.01" max="1000000000000" step="0.01" inputmode="decimal"
+              placeholder="0.00" autocomplete="off" aria-describedby="expenseAmountError" />
+          </div>
+          <p class="field-error" id="expenseAmountError" aria-live="polite"></p>
+        </div>
+
+        <!-- 3. Who paid? -->
+        <div class="form-group">
+          <label class="form-label" id="payerLabel">3. Who paid? *</label>
+          <div class="payer-mode-tabs" id="payerModeTabs" role="group" aria-labelledby="payerLabel">
+            <button type="button" class="payer-tab payer-tab--active" data-mode="single" aria-pressed="true">One person</button>
+            <button type="button" class="payer-tab" data-mode="multi" aria-pressed="false">Multiple people</button>
+          </div>
+
+          <!-- Single payer dropdown -->
+          <div id="singlePayerSec" style="margin-top:10px">
+            <select class="input select payer-select" id="expPaidBy" aria-label="Paid by">
+              <!-- populated by JS -->
+            </select>
+            <div class="payer-choice-list" id="payerChoiceList" role="radiogroup" aria-label="Paid by"></div>
+          </div>
+
+          <!-- Multi payer inputs -->
+          <div id="multiPayerSec" hidden>
+            <div id="payerInputsList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+            <div class="payer-actions-row">
+              <button type="button" class="btn btn--ghost btn--sm" id="splitPayBtn">&#9889; Split equally</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="clearPayBtn">Clear</button>
+            </div>
+            <div id="payerTotalDisplay" class="payer-total"></div>
+            <p class="error-msg" id="payerError" aria-live="polite"></p>
+          </div>
+
+          <!-- Mode-switch confirmation (inline, no alert) -->
+          <div id="switchConfirmSec" hidden class="switch-confirm">
+            <p>Payment entries will be cleared. Switch to one payer?</p>
+            <div class="switch-confirm-btns">
+              <button type="button" class="btn btn--primary btn--sm" id="switchConfirmYes">Yes, switch</button>
+              <button type="button" class="btn btn--outline btn--sm" id="switchConfirmNo">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Split between -->
+        <div class="form-group">
+          <div class="form-label-row">
+            <label class="form-label" id="participantLabel">4. Who shared it? *</label>
+            <button type="button" class="btn btn--ghost btn--sm select-all-btn" id="selectAllBtn">Everyone</button>
+          </div>
+          <div class="checkbox-list" id="participantCheckboxes" role="group" aria-labelledby="participantLabel" aria-describedby="participantError">
+            <!-- populated by JS -->
+          </div>
+          <p class="selection-summary" id="participantSummary"></p>
+          <p class="field-error" id="participantError" aria-live="polite"></p>
+        </div>
+
+        <!-- 5. Split type -->
+        <div class="form-group">
+          <label class="form-label" id="splitTypeLabel">5. How should it be split?</label>
+          <div class="split-tabs" id="splitTabs" role="group" aria-labelledby="splitTypeLabel">
+            <button type="button" class="split-tab split-tab--active" data-type="equal" aria-pressed="true">⚖️ Equal</button>
+            <button type="button" class="split-tab" data-type="custom" aria-pressed="false">✏️ Exact amounts</button>
+          </div>
+        </div>
+
+        <!-- 6. Shares display / custom inputs — populated by JS -->
+        <div class="form-group" id="sharesSection" hidden>
+          <label class="form-label" id="sharesLabel">Shares</label>
+          <div id="sharesDisplay"></div>
+          <div class="split-progress" id="splitProgress"></div>
+        </div>
+
+        <!-- 6. Additional charges (collapsed by default) -->
+        <div class="form-group">
+          <button type="button" class="charges-toggle" id="chargesToggle" aria-expanded="false" aria-controls="chargesSec">
+            &#43; 6. Add optional charges
+          </button>
+          <div id="chargesSec" hidden>
+            <div class="charges-grid">
+              <div class="charge-field">
+                <label class="form-label" for="expGst">GST (%)</label>
+                <input class="input" id="expGst" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="0" value="0" aria-describedby="chargeError" />
+              </div>
+              <div class="charge-field">
+                <label class="form-label" for="expSvc">Service Charge (%)</label>
+                <input class="input" id="expSvc" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="0" value="0" aria-describedby="chargeError" />
+              </div>
+              <div class="charge-field">
+                <label class="form-label" for="expTip">Tip (&#8377;)</label>
+                <input class="input" id="expTip" type="number" min="0" max="1000000000000" step="0.01" inputmode="decimal" placeholder="0" value="0" aria-describedby="chargeError" />
+              </div>
+              <div class="charge-field">
+                <label class="form-label" for="expDisc">Discount (&#8377;)</label>
+                <input class="input" id="expDisc" type="number" min="0" max="1000000000000" step="0.01" inputmode="decimal" placeholder="0" value="0" aria-describedby="chargeError" />
+              </div>
+            </div>
+            <p class="field-error" id="chargeError" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <!-- Amount breakdown -->
+        <div class="breakdown-box" id="breakdownBox" hidden>
+          <div class="breakdown-row"><span>Base amount</span><span id="bdBase"></span></div>
+          <div class="breakdown-row" id="bdGstRow" hidden><span id="bdGstLbl">GST</span><span id="bdGst"></span></div>
+          <div class="breakdown-row" id="bdSvcRow" hidden><span>Service charge</span><span id="bdSvc"></span></div>
+          <div class="breakdown-row" id="bdTipRow" hidden><span>Tip</span><span id="bdTip"></span></div>
+          <div class="breakdown-row" id="bdDiscRow" hidden><span>Discount</span><span id="bdDisc"></span></div>
+          <div class="breakdown-row breakdown-total"><span>Final amount</span><span id="bdFinal"></span></div>
+        </div>
+
+        <!-- 7. Live review -->
+        <div class="expense-review" id="expenseReview">
+          <p class="expense-review__eyebrow">7. Review</p>
+          <div class="expense-review__headline">
+            <strong id="reviewName">New expense</strong>
+            <strong id="reviewAmount">&#8377;0</strong>
+          </div>
+          <p id="reviewPayer">Choose who paid</p>
+          <p id="reviewSplit">Choose participants to see the split</p>
+        </div>
+
+        <!-- Validation error -->
+        <p class="error-msg modal-error" id="expenseError" aria-live="polite"></p>
+
+      </div><!-- /modal__body -->
+
+      <div class="modal__footer">
+        <button class="btn btn--outline" id="modalCancelBtn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn--primary" id="modalSaveBtn" disabled>Save Expense</button>
+      </div>
+
+    </div><!-- /modal -->
+  </div><!-- /modal-overlay -->
+
+  <div class="modal-overlay group-editor-overlay" id="groupEditorOverlay" hidden aria-hidden="true">
+    <div class="group-editor" role="dialog" aria-modal="true" aria-labelledby="groupEditorTitle">
+      <h3 id="groupEditorTitle">New Group</h3>
+      <p id="groupEditorHint">Give this group a clear name.</p>
+      <label class="form-label" for="groupEditorName">Group name *</label>
+      <input class="input" id="groupEditorName" type="text" maxlength="60" autocomplete="off" placeholder="e.g. Goa Trip 2026" aria-describedby="groupEditorHint groupEditorError" />
+      <p class="error-msg" id="groupEditorError" aria-live="polite"></p>
+      <div class="group-editor__actions">
+        <button class="btn btn--outline" id="groupEditorCancel" type="button">Cancel</button>
+        <button class="btn btn--primary" id="groupEditorSave" type="button">Create Group</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay confirm-overlay" id="confirmOverlay" hidden aria-hidden="true">
+    <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <div class="confirm-dialog__icon" aria-hidden="true">!</div>
+      <h3 class="confirm-dialog__title" id="confirmTitle"></h3>
+      <p class="confirm-dialog__message" id="confirmMessage"></p>
+      <div class="confirm-dialog__actions">
+        <button class="btn btn--outline" id="confirmCancelBtn" type="button">Cancel</button>
+        <button class="btn btn--danger-solid" id="confirmActionBtn" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script is here so all DOM elements above (including modal) exist when it runs -->
+  <script src="script.js"></script>
+</body>
+</html>

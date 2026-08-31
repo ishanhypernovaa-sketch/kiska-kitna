@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kiska Kitna app icon">
+  <rect width="512" height="512" rx="88" fill="#17211C"/>
+  <path d="M0 420h171v92H0z" fill="#F15A29"/>
+  <path d="M341 420h171v92H341z" fill="#16856B"/>
+  <path d="M171 420h170v92H171z" fill="#FFFFFF"/>
+  <text x="256" y="315" fill="#FFFFFF" font-family="Trebuchet MS, sans-serif" font-size="210" font-weight="700" text-anchor="middle">K?</text>
+</svg>
